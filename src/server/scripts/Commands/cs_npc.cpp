@@ -238,7 +238,11 @@ public:
 		uint32 lowguid = creature->GetDBTableGUIDLow();
 
 		creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-		WorldDatabase.PExecute("UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = %u", lowguid);
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
+		stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
+		stmt->setUInt32(1, lowGuid);
+		WorldDatabase.Execute(stmt);
 
 		uint32 pathid = lowguid*10;
 		uint32 point = 0;
@@ -265,7 +269,7 @@ public:
 		creature->GetMotionMaster()->Initialize();
 		handler->PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", point+1, "|r|cff00ff00 created. ");
 		return true;
-		/* `Fin patch Réecriture commande .npc addmove */
+		/* Fin patch Réecriture commande .npc addmove */
     }
 
     static bool HandleNpcSetAllowMovementCommand(ChatHandler* handler, const char* /*args*/)
@@ -449,17 +453,23 @@ public:
 
         creature->setFaction(factionId);
 
-        // faction is set in creature_template - not inside creature
+        // Faction is set in creature_template - not inside creature
 
-        // update in memory
+        // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
         }
 
-        // and DB
-        WorldDatabase.PExecute("UPDATE creature_template SET faction_A = '%u', faction_H = '%u' WHERE entry = '%u'", factionId, factionId, creature->GetEntry());
+        // ..and DB
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
+
+        stmt->setUInt16(0, uint16(factionId));
+        stmt->setUInt16(1, uint16(factionId));
+        stmt->setUInt32(2, creature->GetEntry());
+
+        WorldDatabase.Execute(stmt);
 
         return true;
     }

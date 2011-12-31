@@ -494,7 +494,7 @@ bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 
         PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGuid));
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
         stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
         stmt->setUInt32(1, GUID_LOPART(targetGuid));
@@ -514,7 +514,7 @@ bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
     if (!extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         return false;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
     stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
 
@@ -548,7 +548,7 @@ bool ChatHandler::HandleCharacterChangeFactionCommand(const char* args)
     if (!extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         return false;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
     stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
 
@@ -581,7 +581,7 @@ bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
     if (!extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         return false;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
     stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
 
