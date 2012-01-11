@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (HasLowerSecurity (target, target_guid, true))
         return false;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
     if (target)
     {
@@ -144,7 +144,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
         target->GetSession()->m_muteTime = 0;
     }
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
     stmt->setInt64(0, 0);
     stmt->setUInt32(1, accountId);
@@ -583,7 +583,7 @@ bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
-    stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
+    stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
 
     if (target)
     {
@@ -725,13 +725,13 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
     std::string ip;
     int32 limit;
     char* limit_str;
- 
+
     Player *chr = getSelectedPlayer();
     if (chr == NULL)
     {
         if (!*args)
             return false;
- 
+
         ip = strtok ((char*)args, " ");
         limit_str = strtok (NULL, " ");
         limit = limit_str ? atoi (limit_str) : -1;

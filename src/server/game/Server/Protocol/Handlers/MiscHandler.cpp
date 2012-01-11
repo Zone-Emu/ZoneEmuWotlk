@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -160,7 +160,8 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
         else
         {
             go->AI()->GossipSelect(_player, menuId, gossipListId);
-            sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
+                _player->OnGossipSelect(go, gossipListId, menuId);
         }
     }
 }
@@ -168,6 +169,11 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
 void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_WHO Message");
+
+    time_t now = time(NULL);
+    if (now - timeLastWhoCommand < 5)
+        return;
+    else timeLastWhoCommand = now;
 
     uint32 matchcount = 0;
 
@@ -542,7 +548,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), friendName.c_str());
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_RACE_ACC_BY_NAME);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
 
     stmt->setString(0, friendName);
 
@@ -633,7 +639,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
         GetPlayer()->GetName(), ignoreName.c_str());
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
     stmt->setString(0, ignoreName);
 
@@ -718,7 +724,7 @@ void WorldSession::HandleBugOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BUG_REPORT);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
 
     stmt->setString(0, type);
     stmt->setString(1, content);
